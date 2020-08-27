@@ -96,13 +96,11 @@ jobs:
 
     - stage: test
       name: electron-main
-      os: osx
       script:
         - npm run test:electron-main -- $RUN_SINCE -- -- --bail
 
     - stage: test
       name: electron-renderer
-      os: osx
       script:
         - npm run test:electron-renderer -- $RUN_SINCE -- -- --bail
 
