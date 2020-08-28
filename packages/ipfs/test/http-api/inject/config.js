@@ -9,7 +9,7 @@ const { profiles } = require('../../../src/core/components/config')
 const testHttpMethod = require('../../utils/test-http-method')
 const http = require('../../utils/http')
 const sinon = require('sinon')
-const { AbortSignal } = require('abort-controller')
+const { AbortSignal } = require('native-abort-controller')
 
 const defaultOptions = {
   signal: sinon.match.instanceOf(AbortSignal),

@@ -6,7 +6,7 @@ const debug = require('debug')
 const multiaddr = require('multiaddr')
 const toMultiaddr = require('uri-to-multiaddr')
 const Boom = require('@hapi/boom')
-const AbortController = require('abort-controller')
+const AbortController = require('native-abort-controller')
 
 const errorHandler = require('./error-handler')
 const LOG = 'ipfs:http-api'
@@ -117,7 +117,7 @@ class HttpApi {
         }
 
         // Allow if the user agent does not start with Mozilla... (i.e. curl)
-        if (!userAgent.startsWith('Mozilla')) {
+        if (!userAgent.startsWith('Mozilla') || userAgent.includes('Electron')) {
           return h.continue
         }
 
