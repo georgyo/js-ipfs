@@ -11,8 +11,7 @@ branches:
 stages:
   - check
   - test
-  - release-rc-npm
-  - release-rc-docker
+  - release-rc
   - test-external
 
 node_js:
@@ -62,7 +61,7 @@ jobs:
   include:
     - stage: check
       script:
-        - npm run build -- $RUN_SINCE --scope={ipfs,ipfs-http-client}
+        - npm run build -- $RUN_SINCE --scope={ipfs,ipfs-http-client,ipfs-message-port-*}
         - npm run dep-check -- $RUN_SINCE -- -- -- -i electron-webrtc
         - npm run lint -- $RUN_SINCE --concurrency 1
 
@@ -133,32 +132,21 @@ jobs:
         - npx json -I -f ./lerna.json -e "this.command.bootstrap.nohoist = ['ipfs-css', 'tachyons']"
         - npm run reset
         - npm install
-        - npm run build -- --scope={ipfs,ipfs-http-client}
+        - npm run build -- --scope={ipfs,ipfs-http-client,ipfs-message-port-*}
         - npm run test -- --scope=example* --concurrency=1
 
-    - stage: release-rc-npm
+    - stage: release-rc
       # only run on changes to master
       if: branch = master AND type = push AND fork = false
-      name: release npm rc
+      name: release rc
       script:
         # travis does not fetch the whole repo history, but we need that to work out the
         # ref count to publish canary releases properly
         - git fetch --unshallow
-        - npm run build -- --scope=ipfs*
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-        - npm run release:rc -- --yes
-
-    - stage: release-rc-docker
-      # only run on changes to master
-      if: branch = master AND type = push AND fork = false
-      name: release docker rc
-      script:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker build . --tag js-ipfs:next --file ./Dockerfile.next
-        - docker tag js-ipfs:next docker.io/ipfs/js-ipfs:next
-        - docker tag js-ipfs:next docker.io/ipfs/js-ipfs:v`npm show ipfs@next version -q`
-        - docker push ipfs/js-ipfs:next
-        - docker push ipfs/js-ipfs:v`npm show ipfs@next version -q`
+        # only run if the last commit was not part of a release
+        - if [[ ! `git log -n 1 -q` =~ publish ]]; then npm run release:rc ; fi
 
     - stage: test-external
       # only run on changes to master

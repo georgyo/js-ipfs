@@ -7,8 +7,10 @@ const shuffle = require('array-shuffle')
 const AbortController = require('native-abort-controller')
 const preload = require('./runtime/preload-nodejs')
 
-const log = debug('ipfs:preload')
-log.error = debug('ipfs:preload:error')
+const log = Object.assign(
+  debug('ipfs:preload'),
+  { error: debug('ipfs:preload:error') }
+)
 
 module.exports = options => {
   options = options || {}
@@ -18,9 +20,10 @@ module.exports = options => {
   if (!options.enabled || !options.addresses.length) {
     log('preload disabled')
     const api = () => {}
-    api.start = () => {}
-    api.stop = () => {}
-    return api
+    return Object.assign(api, {
+      start: () => {},
+      stop: () => {}
+    })
   }
 
   let stopped = true

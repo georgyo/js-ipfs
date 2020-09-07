@@ -117,7 +117,7 @@ class HttpApi {
         }
 
         // Allow if the user agent does not start with Mozilla... (i.e. curl)
-        if (!userAgent.startsWith('Mozilla') || userAgent.includes('Electron')) {
+        if (!userAgent.startsWith('Mozilla')) {
           return h.continue
         }
 

@@ -5,14 +5,38 @@ const multiaddr = require('multiaddr')
 const { withTimeoutOption } = require('../utils')
 const uint8ArrayToString = require('uint8arrays/to-string')
 
+/**
+ * @typedef {object} PeerIdObj - An object with the Peer identity
+ * @property {string} id - the Peer ID
+ * @property {string} publicKey - the public key of the peer as a base64 encoded string
+ * @property {import('multiaddr')[]} addresses - A list of multiaddrs this node is listening on
+ * @property {string} agentVersion - The agent version
+ * @property {string} protocolVersion - The supported protocol version
+ * @property {string[]} protocols - The supported protocols
+ */
+
+/**
+ * Returns the identity of the Peer
+ * @template {Record<string, any>} ExtraOptions
+ * @callback Id
+ * @param {import('../utils').AbortOptions & ExtraOptions} [options]
+ * @returns {Promise<PeerIdObj>}
+ */
+
 module.exports = ({ peerId, libp2p }) => {
-  return withTimeoutOption(async function id () { // eslint-disable-line require-await
+  // eslint-disable-next-line valid-jsdoc
+  /**
+   * @type {Id<{}>}
+   */
+  async function id (options) { // eslint-disable-line require-await, @typescript-eslint/no-unused-vars
     const id = peerId.toB58String()
     let addresses = []
+    let protocols = []
 
     if (libp2p) {
       // only available while the node is running
       addresses = libp2p.transportManager.getAddrs()
+      protocols = Array.from(libp2p.upgrader.protocols.keys())
     }
 
     return {
@@ -33,7 +57,9 @@ module.exports = ({ peerId, libp2p }) => {
         .sort()
         .map(ma => multiaddr(ma)),
       agentVersion: `js-ipfs/${pkgversion}`,
-      protocolVersion: '9000'
+      protocolVersion: '9000',
+      protocols: protocols.sort()
     }
-  })
+  }
+  return withTimeoutOption(id)
 }
