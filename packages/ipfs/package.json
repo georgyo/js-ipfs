@@ -178,7 +178,7 @@
     "cross-env": "^7.0.0",
     "delay": "^4.3.0",
     "form-data": "^3.0.0",
-    "go-ipfs": "^0.6.0",
+    "go-ipfs": "^0.7.0-rc2",
     "interface-ipfs-core": "^0.140.0",
     "ipfs-interop": "github:ipfs/interop#refactor/streaming-pin-api",
     "ipfsd-ctl": "^7.0.0",
